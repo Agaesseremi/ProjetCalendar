@@ -8,6 +8,7 @@ use App\Models\User;
 use Illuminate\Contracts\Database\Query\Builder;
 use Illuminate\Database\Eloquent\Relations\Relation;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 
 class TaskController extends Controller
 {
@@ -16,14 +17,19 @@ class TaskController extends Controller
      */
     public function index()
     {
-        // On récupère tous les tasks
-        $task = Task::with([
-            'user' => fn (Relation $query) => $query->select(User::$VISIBLE)
-        ]);
-        $task = Task::paginate(10);
+        // // On récupère tous les tasks
+        // $task = Task::with([
+        //     'user' => fn (Relation $query) => $query->select(User::$VISIBLE)
+        // ]);
+        // $task = Task::paginate(10);
 
-        // On retourne les informations des utilisateurs en JSON
-        return $task;
+        // // On retourne les informations des utilisateurs en JSON
+        // return $task;
+
+        /** @var User $user */
+        $user = Auth::user();
+        $data = $user->where('id', '=', $user->id)->with('task')->paginate(10);
+        return $data;
     }
 
     /**
@@ -38,7 +44,10 @@ class TaskController extends Controller
             'title' => 'required'
         ]);
 
+        $user = Auth::user();
+
         $task = Task::create([
+            'user_id' => $user->id,
             'date' => $request->date,
             'start_time' => $request->start_time,
             'end_time' => $request->end_time,

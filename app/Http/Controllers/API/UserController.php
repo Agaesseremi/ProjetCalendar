@@ -7,6 +7,8 @@ use App\Models\User;
 use Illuminate\Http\Request;
 use App\Http\Requests\UserStoreRequest;
 use App\Http\Resources\UserResource;
+use App\Models\Task;
+use Illuminate\Database\Eloquent\Relations\Relation;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
@@ -17,11 +19,15 @@ class UserController extends Controller
 {
     public function index()
     {
+
+        $user = User::with([
+            'task' => fn (Relation $query) => $query->select(Task::$VISIBLE)
+        ]);
         // On récupère tous les utilisateurs
-        $users = User::paginate(10);
+        $user = User::paginate(10);
 
         // On retourne les informations des utilisateurs en JSON
-        return UserResource::collection($users);
+        return UserResource::collection($user);
     }
 
     public function store(UserStoreRequest $request)
@@ -40,7 +46,10 @@ class UserController extends Controller
 
     public function show(User $user)
     {
-        // On retourne les informations de l'utilisateur en JSON
+        // On récupère l'utilisateur connecté avec les tâches associées
+        $user = Auth::user();
+
+        // On retourne les informations de l'utilisateur avec les tâches associées
         return new UserResource($user);
     }
 

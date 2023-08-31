@@ -9,6 +9,8 @@ use Illuminate\Notifications\Notifiable;
 use Laravel\Sanctum\HasApiTokens;
 
 use Illuminate\Contracts\Auth\Access\Authorizable;
+use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 use Tymon\JWTAuth\Contracts\JWTSubject;
 
 class User extends Authenticatable implements JWTSubject
@@ -54,6 +56,18 @@ class User extends Authenticatable implements JWTSubject
         'password' => 'hashed',
     ];
 
+    // protected $with = ['task'];
+
+    public function task(): HasMany
+    {
+        return $this->hasMany(Task::class);
+    }
+
+
+    public function member(): HasOne
+    {
+        return $this->hasOne(Member::class);
+    }
 
     public function getJWTIdentifier()
     {
